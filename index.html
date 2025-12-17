@@ -1,97 +1,86 @@
 <!doctype html>
-<html lang="en">
+<html lang="tr">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>HTML OS — Lock Screen</title>
+  <title>Web OS - Prototip</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Background layers -->
-  <div id="bg" class="bg"></div>
-  <div id="bgBlur" class="bg blur"></div>
 
-  <!-- Lock screen -->
-  <div id="lock" class="lock">
+  <div id="bg" class="bg blurred"></div>
+
+  <div id="lockScreen" class="lock-container">
     <div class="lock-card">
-      <h1>Sign in</h1>
-      <input id="username" placeholder="Username" autocomplete="username" />
-      <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
-      <button id="unlockBtn">Unlock</button>
-      <div class="links">
-        <a href="#" id="forgotBtn">Forgot your password?</a>
-        <a href="#" id="createBtn">Create an account</a>
+      <h1>Giriş Yap</h1>
+      <div class="avatar">👤</div>
+      <input id="username" type="text" placeholder="Kullanıcı Adı" autocomplete="off" />
+      <input id="password" type="password" placeholder="Şifre" />
+      <button id="loginBtn">Oturum Aç</button>
+      
+      <div class="lock-links">
+        <a href="#" id="openForgot">Şifremi Unuttum</a>
+        <a href="#" id="openCreate">Hesap Oluştur</a>
       </div>
     </div>
   </div>
 
-  <!-- Desktop (hidden until unlocked) -->
   <div id="desktop" class="desktop hidden">
     <div class="topbar">
-      <div class="left">HTML OS</div>
-      <div class="right">
-        <button id="settingsBtn" title="Settings">⚙️</button>
-      </div>
+      <div class="start-menu">Web OS</div>
+      <div class="clock" id="clock">12:00</div>
     </div>
 
-    <div id="icons" class="icons">
-      <!-- Placeholder app icons — add/remove easily -->
-      <div class="icon" data-app="notes">
+    <div id="icons" class="icons-grid">
+      <div class="app-icon" data-app="notlar">
         <div class="icon-img">📝</div>
-        <div class="icon-label">Notes</div>
+        <span>Notlar</span>
       </div>
-
-      <div class="icon" data-app="browser">
+      <div class="app-icon" data-app="tarayici">
         <div class="icon-img">🌐</div>
-        <div class="icon-label">Browser</div>
+        <span>Tarayıcı</span>
       </div>
-
-      <div class="icon" data-app="settings">
+      <div class="app-icon" data-app="ayarlar">
         <div class="icon-img">⚙️</div>
-        <div class="icon-label">Settings</div>
+        <span>Ayarlar</span>
       </div>
     </div>
 
-    <div id="windows" class="windows"></div>
+    <div id="windowArea"></div>
   </div>
 
-  <!-- Modals -->
-  <div id="createModal" class="modal hidden">
-    <div class="modal-card">
-      <h2>Create account</h2>
-      <input id="createUser" placeholder="Username" />
-      <input id="createPass" placeholder="Password" />
-      <div class="modal-actions">
-        <button id="createCancel">Cancel</button>
-        <button id="createSave">Create</button>
+  <div id="modalOverlay" class="modal-overlay hidden">
+    
+    <div id="createModal" class="modal-card hidden">
+      <h2>Hesap Oluştur</h2>
+      <input id="newUser" placeholder="Yeni Kullanıcı Adı" />
+      <input id="newPass" type="password" placeholder="Yeni Şifre" />
+      <div class="modal-buttons">
+        <button class="btn-cancel">İptal</button>
+        <button id="saveCreate" class="btn-primary">Oluştur</button>
       </div>
     </div>
-  </div>
 
-  <div id="forgotModal" class="modal hidden">
-    <div class="modal-card">
-      <h2>Reset password</h2>
-      <input id="resetUser" placeholder="Username" />
-      <input id="resetPass" placeholder="New password" />
-      <div class="modal-actions">
-        <button id="resetCancel">Cancel</button>
-        <button id="resetSave">Reset</button>
+    <div id="forgotModal" class="modal-card hidden">
+      <h2>Şifre Sıfırla</h2>
+      <input id="resetUser" placeholder="Kullanıcı Adı" />
+      <input id="resetPass" type="password" placeholder="Yeni Şifre" />
+      <div class="modal-buttons">
+        <button class="btn-cancel">İptal</button>
+        <button id="saveReset" class="btn-primary">Sıfırla</button>
       </div>
     </div>
-  </div>
 
-  <div id="settingsModal" class="modal hidden">
-    <div class="modal-card">
-      <h2>Settings</h2>
-      <label>Background image (file)</label>
-      <input id="bgFile" type="file" accept="image/*" />
-      <label>or image URL</label>
-      <input id="bgUrl" placeholder="https://..." />
-      <div class="modal-actions">
-        <button id="settingsCancel">Cancel</button>
-        <button id="settingsApply">Apply</button>
+    <div id="settingsModal" class="modal-card hidden">
+      <h2>Görünüm Ayarları</h2>
+      <p>Arka plan resmi URL'si girin:</p>
+      <input id="bgUrlInput" placeholder="https://ornek.com/resim.jpg" />
+      <div class="modal-buttons">
+        <button class="btn-cancel">Kapat</button>
+        <button id="saveSettings" class="btn-primary">Uygula</button>
       </div>
     </div>
+
   </div>
 
   <script src="script.js"></script>
