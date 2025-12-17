@@ -1,26 +1,28 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Web OS - Prototip</title>
-  <link rel="stylesheet" href="styles.css" />
+  <title>Web OS - Modular</title>
+  
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/apps.css" />
 </head>
 <body>
 
   <div id="bg" class="bg blurred"></div>
+  <video id="bgVideo" class="bg blurred hidden" autoplay loop muted playsinline></video>
 
   <div id="lockScreen" class="lock-container">
     <div class="lock-card">
-      <h1>Giriş Yap</h1>
+      <h1>Sign In</h1>
       <div class="avatar">👤</div>
-      <input id="username" type="text" placeholder="Kullanıcı Adı" autocomplete="off" />
-      <input id="password" type="password" placeholder="Şifre" />
-      <button id="loginBtn">Oturum Aç</button>
-      
+      <input id="username" type="text" placeholder="Username" autocomplete="off" />
+      <input id="password" type="password" placeholder="Password" />
+      <button id="loginBtn">Login</button>
       <div class="lock-links">
-        <a href="#" id="openForgot">Şifremi Unuttum</a>
-        <a href="#" id="openCreate">Hesap Oluştur</a>
+        <a href="#" id="openForgot">Forgot Password?</a>
+        <a href="#" id="openCreate">Create Account</a>
       </div>
     </div>
   </div>
@@ -32,17 +34,17 @@
     </div>
 
     <div id="icons" class="icons-grid">
-      <div class="app-icon" data-app="notlar">
+      <div class="app-icon" data-app="notes">
         <div class="icon-img">📝</div>
-        <span>Notlar</span>
+        <span>Notes</span>
       </div>
-      <div class="app-icon" data-app="tarayici">
+      <div class="app-icon" data-app="browser">
         <div class="icon-img">🌐</div>
-        <span>Tarayıcı</span>
+        <span>Browser</span>
       </div>
-      <div class="app-icon" data-app="ayarlar">
+      <div class="app-icon" data-app="settings">
         <div class="icon-img">⚙️</div>
-        <span>Ayarlar</span>
+        <span>Settings</span>
       </div>
     </div>
 
@@ -50,39 +52,30 @@
   </div>
 
   <div id="modalOverlay" class="modal-overlay hidden">
-    
     <div id="createModal" class="modal-card hidden">
-      <h2>Hesap Oluştur</h2>
-      <input id="newUser" placeholder="Yeni Kullanıcı Adı" />
-      <input id="newPass" type="password" placeholder="Yeni Şifre" />
+      <h2>Create Account</h2>
+      <input id="newUser" placeholder="New Username" />
+      <input id="newPass" type="password" placeholder="New Password" />
       <div class="modal-buttons">
-        <button class="btn-cancel">İptal</button>
-        <button id="saveCreate" class="btn-primary">Oluştur</button>
+        <button class="btn-cancel">Cancel</button>
+        <button id="saveCreate" class="btn-primary">Create</button>
       </div>
     </div>
 
     <div id="forgotModal" class="modal-card hidden">
-      <h2>Şifre Sıfırla</h2>
-      <input id="resetUser" placeholder="Kullanıcı Adı" />
-      <input id="resetPass" type="password" placeholder="Yeni Şifre" />
+      <h2>Reset Password</h2>
+      <input id="resetUser" placeholder="Username" />
+      <input id="resetPass" type="password" placeholder="New Password" />
       <div class="modal-buttons">
-        <button class="btn-cancel">İptal</button>
-        <button id="saveReset" class="btn-primary">Sıfırla</button>
+        <button class="btn-cancel">Cancel</button>
+        <button id="saveReset" class="btn-primary">Reset</button>
       </div>
     </div>
-
-    <div id="settingsModal" class="modal-card hidden">
-      <h2>Görünüm Ayarları</h2>
-      <p>Arka plan resmi URL'si girin:</p>
-      <input id="bgUrlInput" placeholder="https://ornek.com/resim.jpg" />
-      <div class="modal-buttons">
-        <button class="btn-cancel">Kapat</button>
-        <button id="saveSettings" class="btn-primary">Uygula</button>
-      </div>
-    </div>
-
   </div>
 
-  <script src="script.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/apps/settings.js"></script>
+  <script src="js/system.js"></script>
+
 </body>
 </html>
