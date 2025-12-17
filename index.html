@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Web OS - Fixed</title>
+  <title>Web OS - Modular</title>
   
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/apps.css" />
@@ -28,6 +28,7 @@
   </div>
 
   <div id="desktop" class="desktop hidden">
+    
     <div class="topbar">
       <div class="start-menu">Web OS</div>
       <div class="clock" id="clock">12:00</div>
@@ -46,9 +47,28 @@
         <div class="icon-img">⚙️</div>
         <span>Settings</span>
       </div>
+
+      <div class="app-icon" data-app="terminal">
+        <div class="icon-img">💻</div>
+        <span>Terminal</span>
+      </div>
+      <div class="app-icon" data-app="calculator">
+        <div class="icon-img">🧮</div>
+        <span>Calculator</span>
+      </div>
+      <div class="app-icon" data-app="camera">
+        <div class="icon-img">📷</div>
+        <span>Camera</span>
+      </div>
+      <div class="app-icon" data-app="video">
+        <div class="icon-img">🎬</div>
+        <span>Player</span>
+      </div>
     </div>
 
     <div id="windowArea"></div>
+
+    <div id="taskbar" class="taskbar"></div>
   </div>
 
   <div id="modalOverlay" class="modal-overlay hidden">
@@ -73,9 +93,13 @@
     </div>
   </div>
 
-<script src="js/data.js"></script>
-
-  <script src="js/apps/settings.js"></script> 
+  <script src="js/data.js"></script>
+  
+  <script src="js/apps/settings.js"></script>
+  <script src="js/apps/terminal.js"></script>
+  <script src="js/apps/calculator.js"></script>
+  <script src="js/apps/camera.js"></script>
+  <script src="js/apps/video.js"></script>
   <script src="js/system.js"></script>
 
 </body>
