@@ -1,12 +1,14 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Elementler
     const bg = document.getElementById('bg');
     const bgVideo = document.getElementById('bgVideo');
     const lockScreen = document.getElementById('lockScreen');
     const desktop = document.getElementById('desktop');
     const modalOverlay = document.getElementById('modalOverlay');
-    const DB = window.OS.Data;
+    
+    const DB = window.OS.Data || { getAccount:()=>({}), getBg:()=>({}) };
 
-    // --- GLOBAL HELPERS ---
+    // --- ARKA PLAN YÖNETİMİ ---
     window.OS.applyBackground = (data) => {
         if (!data || !data.url) return;
         if (data.type === 'video') {
@@ -20,40 +22,39 @@ document.addEventListener('DOMContentLoaded', () => {
             bg.style.backgroundImage = `url('${data.url}')`;
         }
     };
-
-    // Initialize Background
+    // Başlangıçta yükle
     window.OS.applyBackground(DB.getBg());
 
-    // --- LOGIN LOGIC ---
-    function login(username, password) {
+    // --- GİRİŞ İŞLEMLERİ ---
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
         const acc = DB.getAccount();
-        if (username === acc.user && password === acc.pass) {
+        
+        if (u === acc.user && p === acc.pass) {
             bg.classList.remove('blurred');
             bgVideo.classList.remove('blurred');
             lockScreen.style.opacity = '0';
-            lockScreen.style.pointerEvents = 'none';
-            setTimeout(() => desktop.classList.remove('hidden'), 300);
+            setTimeout(() => {
+                lockScreen.classList.add('hidden');
+                desktop.classList.remove('hidden');
+            }, 500);
         } else {
             alert('Incorrect username or password!');
         }
-    }
-
-    document.getElementById('loginBtn').addEventListener('click', () => {
-        login(document.getElementById('username').value, document.getElementById('password').value);
     });
 
-    // --- WINDOW MANAGER ---
+    // --- PENCERE YÖNETİMİ ---
     function openWindow(appName) {
-        // Check if app exists in registry
-        const app = window.OS.Apps[appName];
+        // Uygulamayı 'window.OS.Apps' listesinden bul
+        const app = window.OS.Apps && window.OS.Apps[appName];
         
-        // Create Window DOM
         const win = document.createElement('div');
         win.className = 'window';
         
-        // Get Content (either from app or generic placeholder)
-        const contentHtml = app ? app.render() : `<div style="padding:20px">App "<b>${appName}</b>" not found.</div>`;
-        const title = app ? app.title : appName;
+        // Eğer uygulama bulunduysa render et, bulunamadıysa hata göster
+        const contentHtml = app ? app.render() : `<div style="padding:20px; color:white;">Error: App "<b>${appName}</b>" not found.<br>Check settings.js</div>`;
+        const title = app ? app.title : 'Error';
 
         win.innerHTML = `
             <div class="win-header">
@@ -64,27 +65,25 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         document.getElementById('windowArea').appendChild(win);
-        
-        // Close Button
         win.querySelector('.win-close').addEventListener('click', () => win.remove());
         
-        // Make Draggable
+        // Sürükleme Özelliği
         makeDraggable(win);
 
-        // Run App Specific Scripts
+        // Uygulama yüklendikten sonra çalışacak kodlar
         if (app && app.onLoad) {
             app.onLoad(win);
         }
     }
 
-    // --- DESKTOP ICONS ---
+    // İkonlara Çift Tıklama
     document.querySelectorAll('.app-icon').forEach(icon => {
         icon.addEventListener('dblclick', function() {
             openWindow(this.getAttribute('data-app'));
         });
     });
 
-    // --- DRAG LOGIC ---
+    // --- SÜRÜKLEME MANTIĞI ---
     function makeDraggable(elmnt) {
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
         const header = elmnt.querySelector('.win-header');
@@ -96,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
             pos4 = e.clientY;
             document.onmouseup = closeDragElement;
             document.onmousemove = elementDrag;
+            // Pencereyi öne getir
             document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
             elmnt.style.zIndex = 20;
         }
@@ -116,34 +116,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- SYSTEM MODALS ---
-    const toggleModal = (id, show) => {
-        modalOverlay.classList.toggle('hidden', !show);
-        if(show) {
-            document.querySelectorAll('.modal-card').forEach(m => m.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        }
+    // --- MODAL YÖNETİMİ ---
+    const toggleModal = (id) => {
+        modalOverlay.classList.remove('hidden');
+        document.querySelectorAll('.modal-card').forEach(m => m.classList.add('hidden'));
+        if(id) document.getElementById(id).classList.remove('hidden');
+        else modalOverlay.classList.add('hidden');
     };
 
-    document.querySelectorAll('.btn-cancel').forEach(btn => 
-        btn.addEventListener('click', () => toggleModal(null, false)));
-    
-    document.getElementById('openCreate').addEventListener('click', () => toggleModal('createModal', true));
-    document.getElementById('openForgot').addEventListener('click', () => toggleModal('forgotModal', true));
+    document.querySelectorAll('.btn-cancel').forEach(btn => btn.addEventListener('click', () => toggleModal(null)));
+    document.getElementById('openCreate').addEventListener('click', () => toggleModal('createModal'));
+    document.getElementById('openForgot').addEventListener('click', () => toggleModal('forgotModal'));
 
+    // Hesap Oluşturma
     document.getElementById('saveCreate').addEventListener('click', () => {
         const u = document.getElementById('newUser').value;
         const p = document.getElementById('newPass').value;
-        if(u && p) { DB.setAccount(u, p); alert('Created!'); toggleModal(null, false); }
+        if(u && p) { DB.setAccount(u, p); alert('Created!'); toggleModal(null); }
     });
 
+    // Şifre Sıfırlama
     document.getElementById('saveReset').addEventListener('click', () => {
         const u = document.getElementById('resetUser').value;
         const p = document.getElementById('resetPass').value;
-        if(u === DB.getAccount().user) { DB.setAccount(u, p); alert('Reset!'); toggleModal(null, false); }
+        if(u === DB.getAccount().user) { DB.setAccount(u, p); alert('Reset!'); toggleModal(null); }
     });
 
-    // Clock
+    // Saat
     setInterval(() => {
         document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
     }, 1000);
