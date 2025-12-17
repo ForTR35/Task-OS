@@ -1,11 +1,13 @@
 (function() {
-    console.log("Settings.js yüklendi!"); // Konsolda bunu görmen lazım
-
+    // Güvenlik kontrolü
     window.OS = window.OS || {};
     window.OS.Apps = window.OS.Apps || {};
 
+    // UYGULAMA TANIMI
     window.OS.Apps.settings = {
         title: 'Settings',
+        
+        // HTML GÖRÜNÜMÜ
         render: () => `
             <div class="settings-layout">
                 <div class="settings-sidebar">
@@ -37,24 +39,28 @@
                 </div>
             </div>
         `,
+
+        // BUTON İŞLEVLERİ
         onLoad: (winElement) => {
             const DB = window.OS.Data || { setBg:()=>{}, setAccount:()=>{} };
 
-            // Tema Kaydet
+            // Tema Kaydetme
             const themeBtn = winElement.querySelector('#saveTheme');
             if(themeBtn){
                 themeBtn.addEventListener('click', () => {
                     const url = winElement.querySelector('#bgInput').value.trim();
-                    if(!url) return alert('URL giriniz');
+                    if(!url) return alert('Please enter a URL');
+                    
                     const isVideo = url.match(/\.(mp4|webm|ogg)$/i);
                     const type = isVideo ? 'video' : 'image';
+                    
                     if(DB.setBg) DB.setBg(type, url);
                     if(window.OS.applyBackground) window.OS.applyBackground({ type, url });
-                    alert('Arka plan değişti!');
+                    alert('Background updated!');
                 });
             }
 
-            // Hesap Kaydet
+            // Hesap Kaydetme
             const accBtn = winElement.querySelector('#saveAccount');
             if(accBtn){
                 accBtn.addEventListener('click', () => {
@@ -62,13 +68,15 @@
                     const p = winElement.querySelector('#editPass').value.trim();
                     if(u && p) {
                         if(DB.setAccount) DB.setAccount(u, p);
-                        alert('Hesap güncellendi!');
+                        alert('Account updated!');
                     } else {
-                        alert('Alanları doldurun.');
+                        alert('Please fill in all fields.');
                     }
                 });
             }
         },
+
+        // SEKME GEÇİŞLERİ
         switchTab: (btn, tabId) => {
             const sidebar = btn.parentElement;
             const layout = sidebar.parentElement;
