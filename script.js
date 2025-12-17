@@ -1,172 +1,184 @@
-/* Minimal JS to handle login, account creation, background settings, and app open/double-click */
-(function(){
-  // Elements
-  const bg = document.getElementById('bg');
-  const bgBlur = document.getElementById('bgBlur');
-  const lock = document.getElementById('lock');
-  const desktop = document.getElementById('desktop');
-  const unlockBtn = document.getElementById('unlockBtn');
-  const usernameInput = document.getElementById('username');
-  const passwordInput = document.getElementById('password');
+document.addEventListener('DOMContentLoaded', () => {
+    // --- ELEMENTLER ---
+    const bg = document.getElementById('bg');
+    const lockScreen = document.getElementById('lockScreen');
+    const desktop = document.getElementById('desktop');
+    const modalOverlay = document.getElementById('modalOverlay');
+    
+    // --- VERİ YÖNETİMİ (LocalStorage) ---
+    const DB = {
+        getAccount: () => JSON.parse(localStorage.getItem('webos_account')) || { user: 'admin', pass: '1234' },
+        setAccount: (u, p) => localStorage.setItem('webos_account', JSON.stringify({ user: u, pass: p })),
+        getBg: () => localStorage.getItem('webos_bg'),
+        setBg: (url) => localStorage.setItem('webos_bg', url)
+    };
 
-  // Modals
-  const createModal = document.getElementById('createModal');
-  const forgotModal = document.getElementById('forgotModal');
-  const settingsModal = document.getElementById('settingsModal');
+    // İlk açılışta arka plan yükle
+    if (DB.getBg()) bg.style.backgroundImage = `url('${DB.getBg()}')`;
 
-  // Buttons
-  const createBtn = document.getElementById('createBtn');
-  const forgotBtn = document.getElementById('forgotBtn');
-  const settingsBtn = document.getElementById('settingsBtn');
-
-  // Default account if none
-  function ensureDefaultAccount(){
-    if(!localStorage.getItem('osAccount')){
-      localStorage.setItem('osAccount', JSON.stringify({username:'user', password:'password'}));
+    // --- SİSTEM FONKSİYONLARI ---
+    
+    // Giriş Yapma
+    function login(username, password) {
+        const acc = DB.getAccount();
+        if (username === acc.user && password === acc.pass) {
+            // Blur efektini kaldır
+            bg.classList.remove('blurred');
+            
+            // Kilit ekranını yukarı kaydırarak gizle
+            lockScreen.style.opacity = '0';
+            lockScreen.style.pointerEvents = 'none'; // Tıklamayı engelle
+            
+            // Masaüstünü göster
+            setTimeout(() => {
+                desktop.classList.remove('hidden');
+            }, 300);
+        } else {
+            alert('Hatalı kullanıcı adı veya şifre! (Varsayılan: admin / 1234)');
+        }
     }
-  }
 
-  // Background management
-  function applyBackground(src){
-    if(!src) {
-      bg.style.background = '';
-      bg.style.background = 'linear-gradient(120deg,#1f2937,#0f172a)';
-      bgBlur.style.background = bg.style.background;
-      return;
+    // --- PENCERE YÖNETİMİ (SÜRÜKLENEBİLİR) ---
+    function openWindow(appName) {
+        const win = document.createElement('div');
+        win.className = 'window';
+        
+        let contentHtml = `<p>${appName} uygulamasına hoş geldiniz.</p>`;
+        
+        // Eğer Ayarlar uygulamasıysa içeriği değiştir
+        if(appName === 'ayarlar') {
+            contentHtml = `
+                <p>Arka Plan Resmi:</p>
+                <input type="text" id="winBgInput" placeholder="Resim URL yapıştırın" style="width:100%; padding:5px; margin-bottom:10px;">
+                <button id="winBgSave" style="padding:5px 10px;">Kaydet</button>
+            `;
+        }
+
+        win.innerHTML = `
+            <div class="win-header">
+                <span>${appName.toUpperCase()}</span>
+                <button class="win-close">✕</button>
+            </div>
+            <div class="win-content">${contentHtml}</div>
+        `;
+
+        document.getElementById('windowArea').appendChild(win);
+
+        // Kapatma butonu
+        win.querySelector('.win-close').addEventListener('click', () => win.remove());
+
+        // Ayarlar için özel event
+        if(appName === 'ayarlar') {
+            const btn = win.querySelector('#winBgSave');
+            const inp = win.querySelector('#winBgInput');
+            btn.addEventListener('click', () => {
+                if(inp.value) {
+                    DB.setBg(inp.value);
+                    bg.style.backgroundImage = `url('${inp.value}')`;
+                    alert('Arka plan güncellendi!');
+                }
+            });
+        }
+
+        // Pencereyi Sürüklenebilir Yap
+        makeDraggable(win);
     }
-    bg.style.backgroundImage = `url('${src}')`;
-    bg.style.backgroundSize = 'cover';
-    bg.style.backgroundPosition = 'center';
-    bgBlur.style.backgroundImage = `url('${src}')`;
-    bgBlur.style.backgroundSize = 'cover';
-    bgBlur.style.backgroundPosition = 'center';
-  }
 
-  function loadBackground(){
-    const b = localStorage.getItem('osBackground');
-    applyBackground(b);
-  }
+    function makeDraggable(elmnt) {
+        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+        const header = elmnt.querySelector('.win-header');
+        
+        header.onmousedown = dragMouseDown;
 
-  // Lock/unlock
-  function unlock(username){
-    // Animate blur away
-    bgBlur.style.transition = 'opacity .5s ease, filter .5s ease';
-    bgBlur.style.opacity = '0';
-    setTimeout(()=>{ bgBlur.classList.remove('blur'); bgBlur.style.opacity = ''; },500);
+        function dragMouseDown(e) {
+            e.preventDefault();
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            document.onmouseup = closeDragElement;
+            document.onmousemove = elementDrag;
+            
+            // Tıklanan pencereyi en üste al
+            document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
+            elmnt.style.zIndex = 20;
+        }
 
-    lock.classList.add('hidden');
-    desktop.classList.remove('hidden');
-    sessionStorage.setItem('osLoggedIn', username);
-  }
+        function elementDrag(e) {
+            e.preventDefault();
+            pos1 = pos3 - e.clientX;
+            pos2 = pos4 - e.clientY;
+            pos3 = e.clientX;
+            pos4 = e.clientY;
+            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+        }
 
-  function showLock(){
-    // restore blur
-    bgBlur.classList.add('blur');
-    lock.classList.remove('hidden');
-    desktop.classList.add('hidden');
-    sessionStorage.removeItem('osLoggedIn');
-  }
+        function closeDragElement() {
+            document.onmouseup = null;
+            document.onmousemove = null;
+        }
+    }
 
-  // Basic credential functions (very simple for prototype)
-  function getAccount(){
-    const a = localStorage.getItem('osAccount');
-    return a ? JSON.parse(a) : null;
-  }
+    // --- OLAY DİNLEYİCİLERİ (EVENT LISTENERS) ---
 
-  function checkCredentials(user, pass){
-    const acc = getAccount();
-    return acc && acc.username === user && acc.password === pass;
-  }
-
-  // Modal helpers
-  function openModal(m){ m.classList.remove('hidden'); }
-  function closeModal(m){ m.classList.add('hidden'); }
-
-  // Create/forgot handlers
-  (function wireModals(){
-    // Create account
-    createBtn.addEventListener('click', (e)=>{ e.preventDefault(); openModal(createModal); });
-    document.getElementById('createCancel').addEventListener('click', ()=>closeModal(createModal));
-    document.getElementById('createSave').addEventListener('click', ()=>{
-      const u = document.getElementById('createUser').value.trim();
-      const p = document.getElementById('createPass').value;
-      if(!u || !p){ alert('Enter username and password'); return; }
-      localStorage.setItem('osAccount', JSON.stringify({username:u,password:p}));
-      alert('Account created. You can sign in now.');
-      closeModal(createModal);
+    // Login Butonu
+    document.getElementById('loginBtn').addEventListener('click', () => {
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
+        login(u, p);
     });
 
-    // Forgot password
-    forgotBtn.addEventListener('click', (e)=>{ e.preventDefault(); openModal(forgotModal); });
-    document.getElementById('resetCancel').addEventListener('click', ()=>closeModal(forgotModal));
-    document.getElementById('resetSave').addEventListener('click', ()=>{
-      const u = document.getElementById('resetUser').value.trim();
-      const p = document.getElementById('resetPass').value;
-      const acc = getAccount();
-      if(!acc || acc.username !== u){ alert('Username not found'); return; }
-      acc.password = p; localStorage.setItem('osAccount', JSON.stringify(acc));
-      alert('Password reset. Sign in with your new password.');
-      closeModal(forgotModal);
+    // İkonlara Çift Tıklama
+    document.querySelectorAll('.app-icon').forEach(icon => {
+        icon.addEventListener('dblclick', function() {
+            const appName = this.getAttribute('data-app');
+            openWindow(appName);
+        });
     });
 
-    // Settings
-    settingsBtn.addEventListener('click', ()=>openModal(settingsModal));
-    document.getElementById('settingsCancel').addEventListener('click', ()=>closeModal(settingsModal));
-    document.getElementById('settingsApply').addEventListener('click', ()=>{
-      const url = document.getElementById('bgUrl').value.trim();
-      const fileInput = document.getElementById('bgFile');
-      if(url){ localStorage.setItem('osBackground', url); loadBackground(); closeModal(settingsModal); return; }
-      if(fileInput.files && fileInput.files[0]){
-        const fr = new FileReader();
-        fr.onload = ()=>{ localStorage.setItem('osBackground', fr.result); loadBackground(); closeModal(settingsModal); };
-        fr.readAsDataURL(fileInput.files[0]);
-        return;
-      }
-      alert('Select a file or enter a URL');
+    // Modal Açma/Kapama Helper
+    const showModal = (id) => {
+        modalOverlay.classList.remove('hidden');
+        document.querySelectorAll('.modal-card').forEach(m => m.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    };
+    
+    // Modal Kapatma
+    document.querySelectorAll('.btn-cancel').forEach(btn => {
+        btn.addEventListener('click', () => modalOverlay.classList.add('hidden'));
     });
-  })();
 
-  // Unlock button
-  unlockBtn.addEventListener('click', ()=>{
-    const u = usernameInput.value.trim();
-    const p = passwordInput.value;
-    if(checkCredentials(u,p)){
-      unlock(u);
-    } else { alert('Wrong username or password'); }
-  });
+    // Linkler
+    document.getElementById('openCreate').addEventListener('click', () => showModal('createModal'));
+    document.getElementById('openForgot').addEventListener('click', () => showModal('forgotModal'));
 
-  // Allow pressing Enter to submit
-  passwordInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') unlockBtn.click(); });
-  usernameInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter') passwordInput.focus(); });
-
-  // Double-click to open apps
-  document.getElementById('icons').addEventListener('dblclick', (e)=>{
-    const ic = e.target.closest('.icon');
-    if(!ic) return;
-    const app = ic.dataset.app;
-    openAppWindow(app);
-  });
-
-  // simple window launcher
-  function openAppWindow(app){
-    if(app === 'settings'){ settingsBtn.click(); return; }
-    const w = document.createElement('div');
-    w.className = 'window';
-    w.innerHTML = `<div class="title"><span>${app}</span><button class="win-close">✖</button></div><div class="content"><p>This is the <strong>${app}</strong> app.</p></div>`;
-    const closeBtn = w.querySelector('.win-close');
-    closeBtn.addEventListener('click', ()=>w.remove());
-    document.getElementById('windows').appendChild(w);
-  }
-
-  // initialize
-  ensureDefaultAccount();
-  loadBackground();
-
-  // If already logged in in session, go to desktop
-  if(sessionStorage.getItem('osLoggedIn')){
-    // remove blur quickly
-    bgBlur.classList.remove('blur');
-    lock.classList.add('hidden');
-    desktop.classList.remove('hidden');
-  }
-})();
+    // Hesap Oluştur Kaydet
+    document.getElementById('saveCreate').addEventListener('click', () => {
+        const u = document.getElementById('newUser').value;
+        const p = document.getElementById('newPass').value;
+        if(u && p) {
+            DB.setAccount(u, p);
+            alert('Hesap oluşturuldu! Şimdi giriş yapabilirsiniz.');
+            modalOverlay.classList.add('hidden');
+        }
+    });
+    
+    // Şifre Sıfırla Kaydet
+    document.getElementById('saveReset').addEventListener('click', () => {
+        const u = document.getElementById('resetUser').value;
+        const p = document.getElementById('resetPass').value;
+        const current = DB.getAccount();
+        if(u === current.user) {
+            DB.setAccount(u, p);
+            alert('Şifre güncellendi.');
+            modalOverlay.classList.add('hidden');
+        } else {
+            alert('Kullanıcı bulunamadı.');
+        }
+    });
+    
+    // Saat Güncelleme
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('tr-TR', {hour: '2-digit', minute:'2-digit'});
+    }, 1000);
+});
