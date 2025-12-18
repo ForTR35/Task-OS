@@ -23,12 +23,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. GLOBAL HELPERS & BACKGROUND ---
     window.OS.applyBackground = (data) => {
-        if (!data || !data.url) return;
+        // EĞER URL YOKSA -> Varsayılan CSS Gradient'e Dön
+        if (!data || !data.url) {
+            bg.style.backgroundImage = ''; // Inline stili sil (CSS'deki gradient görünür)
+            bg.classList.remove('hidden');
+            bgVideo.classList.add('hidden');
+            bgVideo.src = ""; // Videoyu boşa düşür
+            return;
+        }
+
+        // URL VARSA -> Uygula
         if (data.type === 'video') {
             bg.classList.add('hidden');
             bgVideo.classList.remove('hidden');
             bgVideo.src = data.url;
             bgVideo.load();
+            bgVideo.play().catch(e => console.log("Otomatik oynatma engellendi"));
         } else {
             bgVideo.classList.add('hidden');
             bg.classList.remove('hidden');

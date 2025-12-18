@@ -34,16 +34,14 @@
 .calc-app {
     display: flex;
     flex-direction: column;
-    /* Pencerenin tamamını doldurması için %100 yükseklik veriyoruz */
-    height: 100%; 
     width: 100%;
+    /* Yüksekliği %100 yapıyoruz ki pencere boyutuna tam otursun */
+    height: 100%; 
     background: transparent;
 }
 
-/* Ekran Bölümü */
 .calc-display {
-    /* Sabit yükseklik yerine esnek yapabiliriz ama sabit iyidir */
-    flex: 0 0 80px; 
+    flex: 0 0 80px; /* Sabit yükseklik */
     background: rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
@@ -56,13 +54,13 @@
 .calc-previous { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; min-height: 20px; }
 .calc-current { color: var(--text-color); font-size: 2rem; font-weight: 600; }
 
-/* Tuş Takımı Izgarası */
 .calc-grid {
-    /* Bu özellik, kalan TÜM boşluğu ızgaranın kaplamasını sağlar */
+    /* flex: 1 diyerek kalan TÜM boşluğu buna veriyoruz */
     flex: 1; 
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-template-rows: repeat(5, 1fr); /* 5 satırı eşit dağıt */
+    /* 5 satırın da yüksekliğini eşit dağıt */
+    grid-template-rows: repeat(5, 1fr); 
     gap: 1px;
     padding-top: 1px;
     background: rgba(255, 255, 255, 0.1);
@@ -73,19 +71,84 @@
     border: none;
     outline: none;
     color: white;
-    font-size: 1.2rem; /* Yazıları biraz büyüttük */
+    font-size: 1.2rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    /* Butonların %100 dolması için */
     width: 100%;
-    height: 100%;
+    height: 100%; /* Buton bulunduğu kareyi doldursun */
 }
 
 .btn-calc:hover { background: rgba(255, 255, 255, 0.1); }
 .btn-calc:active { background: rgba(255, 255, 255, 0.2); }
 
-/* Renkler */
 .btn-calc.op { background: rgba(30, 41, 59, 0.8); color: var(--primary); font-weight: bold; }
 .btn-calc.equal { background: var(--primary); color: white; }
 .btn-calc.equal:hover { background: #2563eb; }
 .btn-calc.clear, .btn-calc.delete { color: #ef4444; font-weight: bold; }
+
+/* --- SETTINGS THEME GALLERY --- */
+
+/* Dosya Yükleme Butonu */
+.custom-file-upload {
+    display: inline-block;
+    padding: 10px 20px;
+    background: rgba(255,255,255,0.1);
+    border: 1px dashed rgba(255,255,255,0.4);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+    color: #cbd5e1;
+}
+.custom-file-upload:hover {
+    background: rgba(255,255,255,0.2);
+    border-color: white;
+    color: white;
+}
+input[type="file"] { display: none; } /* Çirkin varsayılan inputu gizle */
+
+
+/* Galeri Izgarası */
+.theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.theme-item {
+    position: relative;
+    height: 100px;
+    background: black;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.theme-item:hover { transform: scale(1.05); z-index: 5; }
+.theme-item.selected { border-color: #3b82f6; box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+
+.theme-item img, .theme-item video {
+    width: 100%; height: 100%; object-fit: cover;
+}
+
+.theme-name {
+    position: absolute; bottom: 0; left: 0; width: 100%;
+    background: rgba(0,0,0,0.7); color: white;
+    font-size: 0.7rem; padding: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Silme Butonu (Sağ üst köşe) */
+.theme-delete {
+    position: absolute; top: 0; right: 0;
+    background: rgba(239, 68, 68, 0.9); color: white;
+    border: none; width: 24px; height: 24px;
+    cursor: pointer; display: none; /* Sadece hover olunca görünsün */
+    align-items: center; justify-content: center;
+    border-bottom-left-radius: 8px;
+}
+.theme-item:hover .theme-delete { display: flex; }
+.theme-delete:hover { background: #ef4444; }

@@ -131,11 +131,15 @@
         `,
 
         onLoad: (winElement) => {
+            // --- KESİN ÇÖZÜM: DOM YÜKLENDİKTEN HEMEN SONRA BOYUTU ZORLA ---
+            // Genişlik: 280px (Daraltıldı)
+            // Yükseklik: 405px (Başlık çubuğu dahil tam sığacak boyut)
+            winElement.style.cssText += "width: 280px !important; height: 405px !important;";
+            
             const previousText = winElement.querySelector('[data-previous]');
             const currentText = winElement.querySelector('[data-current]');
             const calculator = new Calculator(previousText, currentText);
 
-            // Tıklama Olayları
             winElement.querySelectorAll('button').forEach(button => {
                 button.addEventListener('click', () => {
                     if(button.dataset.num) {
@@ -155,12 +159,8 @@
                 });
             });
 
-            // Klavye Desteği
             const keyHandler = (e) => {
-                // Sadece pencere odaklıysa veya en üstteyse çalışması idealdir ama 
-                // şimdilik basit tutmak için direkt çalıştırıyoruz.
-                if(!document.contains(winElement)) return; // Pencere kapandıysa dur
-
+                if(!document.contains(winElement)) return;
                 let key = e.key;
                 if (/[0-9.]/.test(key)) calculator.appendNumber(key);
                 if (key === '+' || key === '-') calculator.chooseOperation(key);
@@ -169,15 +169,10 @@
                 if (key === 'Enter' || key === '=') { e.preventDefault(); calculator.compute(); }
                 if (key === 'Backspace') calculator.delete();
                 if (key === 'Escape') calculator.clear();
-                
                 calculator.updateDisplay();
             };
 
-            // Pencereye tıklandığında odaklanma mantığı system.js'de var varsayıyoruz.
-            // Klavye dinleyicisini ekle
             document.addEventListener('keydown', keyHandler);
-
-            // Pencere kapanınca dinleyiciyi kaldır (Memory Leak önlemek için)
             winElement.querySelector('.win-close').addEventListener('click', () => {
                 document.removeEventListener('keydown', keyHandler);
             });
