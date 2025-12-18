@@ -34,79 +34,58 @@
 .calc-app {
     display: flex;
     flex-direction: column;
-    height: 100%;
-    background: transparent; /* Pencere rengini kullanır */
+    /* Pencerenin tamamını doldurması için %100 yükseklik veriyoruz */
+    height: 100%; 
+    width: 100%;
+    background: transparent;
 }
 
 /* Ekran Bölümü */
 .calc-display {
-    flex: 0 0 80px; /* Sabit yükseklik */
+    /* Sabit yükseklik yerine esnek yapabiliriz ama sabit iyidir */
+    flex: 0 0 80px; 
     background: rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     justify-content: space-around;
     padding: 10px 20px;
-    word-wrap: break-word;
     word-break: break-all;
 }
 
-.calc-previous {
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.9rem;
-    min-height: 20px;
-}
-
-.calc-current {
-    color: var(--text-color);
-    font-size: 2rem;
-    font-weight: 600;
-}
+.calc-previous { color: rgba(255, 255, 255, 0.6); font-size: 0.9rem; min-height: 20px; }
+.calc-current { color: var(--text-color); font-size: 2rem; font-weight: 600; }
 
 /* Tuş Takımı Izgarası */
 .calc-grid {
-    flex: 1;
+    /* Bu özellik, kalan TÜM boşluğu ızgaranın kaplamasını sağlar */
+    flex: 1; 
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 1px; /* Tuşlar arası ince çizgi efekti */
+    grid-template-rows: repeat(5, 1fr); /* 5 satırı eşit dağıt */
+    gap: 1px;
     padding-top: 1px;
-    background: rgba(255, 255, 255, 0.1); /* Izgara çizgileri rengi */
-}
-
-.btn-calc {
-    background: rgba(30, 41, 59, 0.6); /* Buton rengi */
-    border: none;
-    outline: none;
-    color: white;
-    font-size: 1.1rem;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-calc:hover {
     background: rgba(255, 255, 255, 0.1);
 }
 
-.btn-calc:active {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* Özel Buton Renkleri */
-.btn-calc.op {
-    background: rgba(30, 41, 59, 0.8);
-    color: var(--primary); /* Mavi renk */
-    font-weight: bold;
-}
-
-.btn-calc.equal {
-    background: var(--primary);
+.btn-calc {
+    background: rgba(30, 41, 59, 0.6);
+    border: none;
+    outline: none;
     color: white;
-}
-.btn-calc.equal:hover {
-    background: #2563eb; /* Daha koyu mavi */
+    font-size: 1.2rem; /* Yazıları biraz büyüttük */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    /* Butonların %100 dolması için */
+    width: 100%;
+    height: 100%;
 }
 
-.btn-calc.clear, .btn-calc.delete {
-    color: #ef4444; /* Kırmızı ton */
-    font-weight: bold;
-}
+.btn-calc:hover { background: rgba(255, 255, 255, 0.1); }
+.btn-calc:active { background: rgba(255, 255, 255, 0.2); }
+
+/* Renkler */
+.btn-calc.op { background: rgba(30, 41, 59, 0.8); color: var(--primary); font-weight: bold; }
+.btn-calc.equal { background: var(--primary); color: white; }
+.btn-calc.equal:hover { background: #2563eb; }
+.btn-calc.clear, .btn-calc.delete { color: #ef4444; font-weight: bold; }

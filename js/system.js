@@ -1,12 +1,27 @@
+/* File: js/system.js */
+
 document.addEventListener('DOMContentLoaded', () => {
+    // --- DOM ELEMENTS ---
     const bg = document.getElementById('bg');
     const bgVideo = document.getElementById('bgVideo');
     const lockScreen = document.getElementById('lockScreen');
     const desktop = document.getElementById('desktop');
     const modalOverlay = document.getElementById('modalOverlay');
+    const windowArea = document.getElementById('windowArea');
     const DB = window.OS.Data;
 
-    // --- GLOBAL HELPERS ---
+    // Taskbar Oluştur
+    let taskbar = document.getElementById('taskbar');
+    if (!taskbar) {
+        taskbar = document.createElement('div');
+        taskbar.id = 'taskbar';
+        taskbar.className = 'taskbar';
+        document.body.appendChild(taskbar);
+    }
+
+    let zIndexCounter = 100;
+
+    // --- 1. GLOBAL HELPERS & BACKGROUND ---
     window.OS.applyBackground = (data) => {
         if (!data || !data.url) return;
         if (data.type === 'video') {
@@ -20,131 +35,258 @@ document.addEventListener('DOMContentLoaded', () => {
             bg.style.backgroundImage = `url('${data.url}')`;
         }
     };
-
-    // Initialize Background
     window.OS.applyBackground(DB.getBg());
 
-    // --- LOGIN LOGIC ---
-    function login(username, password) {
-        const acc = DB.getAccount();
-        if (username === acc.user && password === acc.pass) {
-            bg.classList.remove('blurred');
-            bgVideo.classList.remove('blurred');
-            lockScreen.style.opacity = '0';
-            lockScreen.style.pointerEvents = 'none';
-            setTimeout(() => desktop.classList.remove('hidden'), 300);
-        } else {
-            alert('Incorrect username or password!');
-        }
+    // --- 2. LOGIN LOGIC ---
+    const loginBtn = document.getElementById('loginBtn');
+    if(loginBtn) {
+        loginBtn.addEventListener('click', () => {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const acc = DB.getAccount();
+            if (u === acc.user && p === acc.pass) {
+                bg.classList.remove('blurred');
+                bgVideo.classList.remove('blurred');
+                lockScreen.style.opacity = '0';
+                lockScreen.style.pointerEvents = 'none';
+                setTimeout(() => desktop.classList.remove('hidden'), 300);
+            } else {
+                alert('Incorrect username or password!');
+            }
+        });
     }
 
-    document.getElementById('loginBtn').addEventListener('click', () => {
-        login(document.getElementById('username').value, document.getElementById('password').value);
-    });
-
-    // --- WINDOW MANAGER ---
-    function openWindow(appName) {
-        // Check if app exists in registry
+    // --- 3. WINDOW MANAGER SYSTEM ---
+    window.openWindow = function(appName) {
         const app = window.OS.Apps[appName];
+        if(!app) return;
+
+        const winId = `win-${appName}-${Date.now()}`;
         
-        // Create Window DOM
         const win = document.createElement('div');
         win.className = 'window';
+        win.id = winId;
+        win.style.zIndex = ++zIndexCounter;
         
-        // Get Content (either from app or generic placeholder)
-        const contentHtml = app ? app.render() : `<div style="padding:20px">App "<b>${appName}</b>" not found.</div>`;
-        const title = app ? app.title : appName;
+        // Rastgele Başlangıç Konumu
+        const randX = 100 + Math.floor(Math.random() * 50);
+        const randY = 50 + Math.floor(Math.random() * 50);
+        win.style.top = `${randY}px`;
+        win.style.left = `${randX}px`;
+        
+        // Varsayılan Boyut
+        win.style.width = '360px';
+        win.style.height = '480px';
 
+        // HTML Yapısı
         win.innerHTML = `
             <div class="win-header">
-                <span>${title}</span>
-                <button class="win-close">✕</button>
+                <div class="win-title">
+                    <span style="margin-right:5px">📂</span> ${app.title}
+                </div>
+                <div class="win-controls">
+                    <button class="win-btn btn-min" title="Minimize"></button>
+                    <button class="win-btn btn-max" title="Maximize"></button>
+                    <button class="win-btn btn-close" title="Close"></button>
+                </div>
             </div>
-            <div class="win-content">${contentHtml}</div>
+            <div class="win-content" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+                ${app.render()}
+            </div>
+            <div class="resizer resizer-r"></div>
+            <div class="resizer resizer-b"></div>
+            <div class="resizer resizer-br"></div>
         `;
 
-        document.getElementById('windowArea').appendChild(win);
-        
-        // Close Button
-        win.querySelector('.win-close').addEventListener('click', () => win.remove());
-        
-        // Make Draggable
-        makeDraggable(win);
+        windowArea.appendChild(win);
+        addTaskbarItem(winId, app.title);
 
-        // Run App Specific Scripts
-        if (app && app.onLoad) {
-            app.onLoad(win);
+        // Event Listeners
+        win.querySelector('.btn-close').onclick = () => closeWindow(winId);
+        win.querySelector('.btn-min').onclick = () => minimizeWindow(winId);
+        win.querySelector('.btn-max').onclick = () => toggleMaximize(winId);
+        win.onmousedown = () => focusWindow(winId);
+
+        // --- YENİ OPTİMİZE EDİLMİŞ SÜRÜKLEME ---
+        makeDraggable(win);
+        makeResizable(win);
+
+        if (app.onLoad) app.onLoad(win);
+    };
+
+    // --- WINDOW ACTIONS ---
+    function closeWindow(id) {
+        const win = document.getElementById(id);
+        if(win) win.remove();
+        removeTaskbarItem(id);
+    }
+
+    function minimizeWindow(id) {
+        const win = document.getElementById(id);
+        if(win) {
+            win.classList.add('minimized');
+            updateTaskbarActive(id, false);
         }
     }
 
-    // --- DESKTOP ICONS ---
-    document.querySelectorAll('.app-icon').forEach(icon => {
-        icon.addEventListener('dblclick', function() {
-            openWindow(this.getAttribute('data-app'));
-        });
-    });
-
-    // --- DRAG LOGIC ---
-    function makeDraggable(elmnt) {
-        let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-        const header = elmnt.querySelector('.win-header');
-        header.onmousedown = dragMouseDown;
-
-        function dragMouseDown(e) {
-            e.preventDefault();
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            document.onmouseup = closeDragElement;
-            document.onmousemove = elementDrag;
-            document.querySelectorAll('.window').forEach(w => w.style.zIndex = 10);
-            elmnt.style.zIndex = 20;
+    function toggleMaximize(id) {
+        const win = document.getElementById(id);
+        if(win) {
+            win.classList.toggle('maximized');
+            focusWindow(id);
         }
+    }
+
+    function focusWindow(id) {
+        const win = document.getElementById(id);
+        if(!win) return;
+        if(win.classList.contains('minimized')) win.classList.remove('minimized');
+        
+        // Z-Index Yönetimi
+        zIndexCounter++;
+        win.style.zIndex = zIndexCounter;
+
+        // Pencereler Taskbar'ın üstüne çıkarsa Taskbar'ı da yükselt
+        if (zIndexCounter >= 990) {
+            const tb = document.getElementById('taskbar');
+            if(tb) tb.style.zIndex = zIndexCounter + 100;
+        }
+
+        updateTaskbarActive(id, true);
+    }
+
+    // --- TASKBAR ACTIONS ---
+    function addTaskbarItem(winId, title) {
+        const item = document.createElement('div');
+        item.className = 'taskbar-item active';
+        item.dataset.target = winId;
+        item.innerHTML = `<span>${title}</span>`;
+        item.onclick = () => {
+            const win = document.getElementById(winId);
+            if(win.classList.contains('minimized') || win.style.zIndex != zIndexCounter) {
+                focusWindow(winId);
+            } else {
+                minimizeWindow(winId);
+            }
+        };
+        taskbar.appendChild(item);
+    }
+
+    function removeTaskbarItem(winId) {
+        const item = taskbar.querySelector(`[data-target="${winId}"]`);
+        if(item) item.remove();
+    }
+
+    function updateTaskbarActive(winId, isActive) {
+        document.querySelectorAll('.taskbar-item').forEach(i => i.classList.remove('active'));
+        if(isActive) {
+            const item = taskbar.querySelector(`[data-target="${winId}"]`);
+            if(item) item.classList.add('active');
+        }
+    }
+
+    // --- OPTİMİZE EDİLMİŞ SÜRÜKLEME (DRAG) ---
+    function makeDraggable(elmnt) {
+        const header = elmnt.querySelector('.win-header');
+        let startX, startY, initialLeft, initialTop;
+
+        header.onmousedown = function(e) {
+            if(elmnt.classList.contains('maximized')) return;
+            
+            e.preventDefault();
+            focusWindow(elmnt.id);
+            
+            // Başlangıç değerlerini kaydet
+            startX = e.clientX;
+            startY = e.clientY;
+            initialLeft = elmnt.offsetLeft;
+            initialTop = elmnt.offsetTop;
+
+            // Global event listener ekle (Daha güvenli ve hızlı)
+            document.addEventListener('mousemove', elementDrag);
+            document.addEventListener('mouseup', closeDragElement);
+        };
 
         function elementDrag(e) {
             e.preventDefault();
-            pos1 = pos3 - e.clientX;
-            pos2 = pos4 - e.clientY;
-            pos3 = e.clientX;
-            pos4 = e.clientY;
-            elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-            elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+            // Yeni konumu hesapla
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            
+            let newTop = initialTop + dy;
+            let newLeft = initialLeft + dx;
+
+            // Sınır Kontrolü: Pencerenin en tepeye yapışıp kaybolmasını önle
+            if (newTop < 0) newTop = 0;
+
+            elmnt.style.top = newTop + "px";
+            elmnt.style.left = newLeft + "px";
         }
 
         function closeDragElement() {
-            document.onmouseup = null;
-            document.onmousemove = null;
+            // İşlem bitince dinleyicileri temizle (Performans için önemli)
+            document.removeEventListener('mousemove', elementDrag);
+            document.removeEventListener('mouseup', closeDragElement);
         }
     }
 
-    // --- SYSTEM MODALS ---
-    const toggleModal = (id, show) => {
-        modalOverlay.classList.toggle('hidden', !show);
-        if(show) {
-            document.querySelectorAll('.modal-card').forEach(m => m.classList.add('hidden'));
-            document.getElementById(id).classList.remove('hidden');
-        }
-    };
+    // --- RESIZE LOGIC ---
+    function makeResizable(elmnt) {
+        const resizers = elmnt.querySelectorAll('.resizer');
+        let original_w, original_h, original_mouse_x, original_mouse_y;
 
-    document.querySelectorAll('.btn-cancel').forEach(btn => 
-        btn.addEventListener('click', () => toggleModal(null, false)));
-    
-    document.getElementById('openCreate').addEventListener('click', () => toggleModal('createModal', true));
-    document.getElementById('openForgot').addEventListener('click', () => toggleModal('forgotModal', true));
+        resizers.forEach(resizer => {
+            resizer.addEventListener('mousedown', (e) => {
+                if(elmnt.classList.contains('maximized')) return;
+                e.preventDefault();
+                
+                original_w = parseFloat(getComputedStyle(elmnt).width);
+                original_h = parseFloat(getComputedStyle(elmnt).height);
+                original_mouse_x = e.pageX;
+                original_mouse_y = e.pageY;
+                
+                const isRight = resizer.classList.contains('resizer-r') || resizer.classList.contains('resizer-br');
+                const isBottom = resizer.classList.contains('resizer-b') || resizer.classList.contains('resizer-br');
 
-    document.getElementById('saveCreate').addEventListener('click', () => {
-        const u = document.getElementById('newUser').value;
-        const p = document.getElementById('newPass').value;
-        if(u && p) { DB.setAccount(u, p); alert('Created!'); toggleModal(null, false); }
+                window.addEventListener('mousemove', resize);
+                window.addEventListener('mouseup', stopResize);
+
+                function resize(e) {
+                    if (isRight) {
+                        const w = original_w + (e.pageX - original_mouse_x);
+                        if (w > 280) elmnt.style.width = w + 'px';
+                    }
+                    if (isBottom) {
+                        const h = original_h + (e.pageY - original_mouse_y);
+                        if (h > 200) elmnt.style.height = h + 'px';
+                    }
+                }
+
+                function stopResize() {
+                    window.removeEventListener('mousemove', resize);
+                    window.removeEventListener('mouseup', stopResize);
+                }
+            });
+        });
+    }
+
+    // --- CLOCK & ICONS ---
+    document.querySelectorAll('.app-icon').forEach(icon => {
+        icon.addEventListener('dblclick', function() {
+            window.openWindow(this.getAttribute('data-app'));
+        });
     });
 
-    document.getElementById('saveReset').addEventListener('click', () => {
-        const u = document.getElementById('resetUser').value;
-        const p = document.getElementById('resetPass').value;
-        if(u === DB.getAccount().user) { DB.setAccount(u, p); alert('Reset!'); toggleModal(null, false); }
-    });
-
-    // Clock
     setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+        const c = document.getElementById('clock');
+        if(c) c.innerText = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
     }, 1000);
+    
+    // Create/Forgot Modal triggers
+    const btnCreate = document.getElementById('openCreate');
+    const btnForgot = document.getElementById('openForgot');
+    if(btnCreate) btnCreate.addEventListener('click', () => modalOverlay.classList.remove('hidden')); 
+    if(btnForgot) btnForgot.addEventListener('click', () => modalOverlay.classList.remove('hidden'));
+    
+    document.querySelectorAll('.btn-cancel').forEach(b => b.onclick = () => modalOverlay.classList.add('hidden'));
 });
