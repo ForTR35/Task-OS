@@ -1,7 +1,7 @@
 /* File: js/apps/calculator.js */
 (function() {
     // --- GELİŞMİŞ HESAPLAMA MOTORU ---
-    class ScientificCalculator {
+    class Calculator {
         constructor(displayElement) {
             this.displayElement = displayElement;
             this.clear();
@@ -92,7 +92,7 @@
     }
 
     window.OS.Apps.calculator = {
-        title: 'Scientific',
+        title: 'Calculator',
         
         render: () => `
             <div class="calc-app">
@@ -156,7 +156,7 @@
             
             // ... geri kalan kodlar aynı ...
             const display = winElement.querySelector('[data-current]');
-            const calculator = new ScientificCalculator(display);
+            const calculator = new Calculator(display);
 
             let isSecondMode = false;
             const btn2nd = winElement.querySelector('#btn-2nd');

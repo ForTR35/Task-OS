@@ -67,12 +67,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- 3. WINDOW MANAGER SYSTEM ---
-    window.openWindow = function(appName) {
+        window.openWindow = function(appName, params = null) { // params eklendi
         const app = window.OS.Apps[appName];
         if(!app) return;
 
         const winId = `win-${appName}-${Date.now()}`;
-        
         const win = document.createElement('div');
         win.className = 'window';
         win.id = winId;
@@ -121,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         makeDraggable(win);
         makeResizable(win);
 
-        if (app.onLoad) app.onLoad(win);
+        if (app.onLoad) app.onLoad(win, params); // params gönderiyoruz
     };
 
     // --- WINDOW ACTIONS ---
@@ -299,4 +298,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if(btnForgot) btnForgot.addEventListener('click', () => modalOverlay.classList.remove('hidden'));
     
     document.querySelectorAll('.btn-cancel').forEach(b => b.onclick = () => modalOverlay.classList.add('hidden'));
+
+    // --- MASAÜSTÜ İKON YENİLEME ---
+    window.OS.refreshIcons = () => {
+        const iconsDiv = document.getElementById('icons');
+        // Sadece sonradan eklenen notları temizle
+        iconsDiv.querySelectorAll('.dynamic-note').forEach(el => el.remove());
+
+        // Kayıtlı notları getir ve ekle
+        const savedNotes = window.OS.Data.getNotes();
+        savedNotes.forEach(note => {
+            const icon = document.createElement('div');
+            icon.className = 'app-icon dynamic-note';
+            icon.dataset.app = 'notes';
+            icon.innerHTML = `<div class="icon-img">📄</div><span>${note.title}</span>`;
+            
+            icon.addEventListener('dblclick', () => {
+                window.openWindow('notes', note.id);
+            });
+            iconsDiv.appendChild(icon);
+        });
+    };
+    // Başlangıçta çalıştır
+    window.OS.refreshIcons();
 });
