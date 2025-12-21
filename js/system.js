@@ -353,8 +353,6 @@ document.addEventListener('DOMContentLoaded', () => {
             { id: 'app-settings', type: 'app', appName: 'settings', title: 'Settings', icon: '⚙️' },
             { id: 'app-terminal', type: 'app', appName: 'terminal', title: 'Terminal', icon: '💻' },
             { id: 'app-calculator', type: 'app', appName: 'calculator', title: 'Calculator', icon: '🧮' },
-            { id: 'app-camera', type: 'app', appName: 'camera', title: 'Camera', icon: '📷' },
-            { id: 'app-video', type: 'app', appName: 'video', title: 'Player', icon: '🎬' }
         ];
 
         // 2. Kullanıcı Notlarını Listeye Ekle
