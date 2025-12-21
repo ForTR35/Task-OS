@@ -402,6 +402,7 @@ window.OS.applyBackground = (data) => {
             { id: 'app-terminal', type: 'app', appName: 'terminal', title: 'Terminal', icon: '💻' },
             { id: 'app-calculator', type: 'app', appName: 'calculator', title: 'Calculator', icon: '🧮' },
             { id: 'app-todo', type: 'app', appName: 'todo', title: 'Tasks Pro', icon: '✅' },
+            { id: 'app-snake', type: 'app', appName: 'snake', title: 'Neon Snake', icon: '🐍' },
         ];
 
         // 2. Kullanıcı Notlarını Listeye Ekle
