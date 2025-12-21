@@ -1,6 +1,17 @@
 /* File: js/system.js */
 
 document.addEventListener('DOMContentLoaded', () => {
+
+    // ... (DOM Elements tanımları) ...
+    const DB = window.OS.Data;
+
+    // --- 0. TEMA YÜKLEME ---
+    const currentTheme = DB.getTheme();
+    if (currentTheme === 'light') {
+        document.body.classList.add('light-mode');
+    }
+
+    // ... (Geri kalan kodlar aynen devam etsin) ...
     // --- DOM ELEMENTS ---
     const bg = document.getElementById('bg');
     const bgVideo = document.getElementById('bgVideo');
@@ -8,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const desktop = document.getElementById('desktop');
     const modalOverlay = document.getElementById('modalOverlay');
     const windowArea = document.getElementById('windowArea');
-    const DB = window.OS.Data;
 
     // Taskbar Oluştur
     let taskbar = document.getElementById('taskbar');
@@ -65,6 +75,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    // --- TEMA DEĞİŞTİRİCİ ---
+    window.OS.toggleTheme = () => {
+        const isLight = document.body.classList.toggle('light-mode');
+        const newMode = isLight ? 'light' : 'dark';
+        window.OS.Data.setTheme(newMode);
+        return newMode; // 'light' veya 'dark' döndürür
+    };
 
     // --- 3. WINDOW MANAGER SYSTEM ---
         window.openWindow = function(appName, params = null) { // params eklendi

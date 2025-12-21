@@ -352,3 +352,130 @@ input[type="file"] { display: none; }
     height: 100%;
     border: none;
 }
+
+/* --- SETTINGS & GENERAL --- */
+.settings-layout { display: flex; width: 100%; height: 100%; color: var(--text-main); }
+
+.settings-sidebar {
+  width: 140px; background: rgba(0,0,0,0.05); 
+  border-right: 1px solid var(--win-border);
+  display: flex; flex-direction: column; padding: 10px; gap: 5px;
+}
+
+.settings-btn {
+  text-align: left; padding: 10px; background: transparent; 
+  border: none; color: var(--text-muted);
+  cursor: pointer; border-radius: 6px; transition: 0.2s;
+}
+.settings-btn:hover, .settings-btn.active { 
+  background: var(--item-hover); color: var(--text-main); 
+}
+
+.settings-panel { flex: 1; padding: 20px; overflow-y: auto; }
+.settings-group { margin-bottom: 20px; }
+.settings-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; opacity: 0.8; }
+
+/* --- BROWSER --- */
+.browser-app {
+    display: flex; flex-direction: column; height: 100%; width: 100%;
+    background: var(--bg-color); /* Tema rengine göre değişsin */
+}
+.browser-tabs {
+    display: flex; align-items: center; background: rgba(0,0,0,0.1);
+    padding: 8px 10px 0 10px; height: 40px; gap: 5px;
+}
+.browser-tab {
+    background: var(--win-bg); color: var(--text-main);
+    padding: 8px 15px; border-radius: 8px 8px 0 0; font-size: 0.85rem;
+    display: flex; align-items: center; gap: 8px; min-width: 150px;
+}
+.browser-toolbar {
+    display: flex; align-items: center; padding: 8px;
+    background: var(--win-bg); border-bottom: 1px solid var(--win-border); gap: 10px;
+}
+.nav-btn { background: transparent; border: none; font-size: 1.1rem; color: var(--text-main); cursor: pointer; }
+.address-bar-container {
+    flex: 1; background: var(--input-bg); border-radius: 20px; padding: 6px 15px;
+}
+.address-input { width: 100%; background: transparent; border: none; outline: none; color: var(--text-main); }
+.browser-content { flex: 1; background: white; }
+
+/* --- CALCULATOR --- */
+.calc-app {
+    display: flex; flex-direction: column; width: 100%; height: 100%;
+    background: transparent; color: var(--text-main);
+}
+.calc-display {
+    flex: 0 0 80px; background: rgba(0, 0, 0, 0.1);
+    display: flex; flex-direction: column; align-items: flex-end; justify-content: center;
+    padding: 0 20px;
+}
+.calc-current { font-size: 2.5rem; font-weight: 600; }
+.calc-grid {
+    flex: 1; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(7, 1fr);
+    gap: 1px; padding: 1px; background: var(--win-border);
+}
+.btn-calc {
+    background: var(--input-bg); color: var(--text-main);
+    border: none; cursor: pointer; font-size: 1rem;
+}
+.btn-calc:hover { background: var(--item-hover); }
+.btn-calc.equal { background: var(--primary); color: white; }
+
+/* --- NOTES --- */
+.notes-app { display: flex; flex-direction: column; height: 100%; width: 100%; background: transparent; }
+.notes-toolbar { 
+    display: flex; align-items: center; gap: 10px; padding: 10px; 
+    background: rgba(0,0,0,0.05); border-bottom: 1px solid var(--win-border); 
+}
+.notes-area { 
+    flex: 1; resize: none; border: none; outline: none; 
+    background: transparent; padding: 15px; 
+    color: var(--text-main); font-size: 1.1rem; 
+}
+.notes-area::placeholder { color: var(--text-muted); }
+
+/* --- TERMINAL (Hep Koyu Kalsın) --- */
+.terminal-app {
+    display: flex; flex-direction: column; height: 100%; width: 100%;
+    background-color: #0c0c0c; color: #10b981; /* Hacker Yeşili */
+    font-family: monospace; padding: 10px;
+}
+.terminal-input { color: #10b981; }
+
+/* --- SETTINGS ACTION BUTTONS (Yeni Tasarım) --- */
+.settings-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.panel-btn {
+    flex: 1; /* Yan yana eşit dağılsınlar */
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.05); /* Sidebar gibi hafif arka plan */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-main);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.95rem;
+    text-align: center;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+
+.panel-btn:hover {
+    background: rgba(255, 255, 255, 0.15); /* Hover olunca parlasın */
+    transform: translateY(-1px);
+}
+
+.panel-btn:active {
+    transform: scale(0.98);
+}
+
+/* Seçili olan butonu belli etmek istersen (Opsiyonel) */
+.panel-btn.active-theme {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}

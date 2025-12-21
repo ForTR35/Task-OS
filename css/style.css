@@ -1,230 +1,211 @@
+/* --- TEMA DEĞİŞKENLERİ (EN ÖNEMLİ KISIM) --- */
 :root {
+  /* KOYU TEMA (Varsayılan) */
   --primary: #3b82f6;
-  --glass: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --text-color: #ffffff;
+  --bg-color: #0f172a;
+  
+  /* Pencereler */
+  --win-bg: rgba(30, 41, 59, 0.85);
+  --win-border: rgba(255, 255, 255, 0.1);
+  --text-main: #ffffff;
+  --text-muted: #94a3b8;
+  
+  /* Barlar ve Girişler */
+  --bar-bg: rgba(15, 23, 42, 0.85);
+  --item-hover: rgba(255, 255, 255, 0.1);
+  --input-bg: rgba(255, 255, 255, 0.1);
+  --input-border: rgba(255, 255, 255, 0.2);
 }
 
-body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: 'Segoe UI', sans-serif; color: var(--text-color); }
+/* AÇIK TEMA (Light Mode) */
+body.light-mode {
+  --bg-color: #f1f5f9;
+  
+  /* Pencereler - Beyaz */
+  --win-bg: rgba(255, 255, 255, 0.85);
+  --win-border: rgba(0, 0, 0, 0.1);
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+  
+  /* Barlar */
+  --bar-bg: rgba(255, 255, 255, 0.85);
+  --item-hover: rgba(0, 0, 0, 0.05);
+  --input-bg: rgba(0, 0, 0, 0.05);
+  --input-border: rgba(0, 0, 0, 0.1);
+}
+
+/* --- GENEL AYARLAR --- */
+body, html { 
+    margin: 0; padding: 0; height: 100%; overflow: hidden; 
+    font-family: 'Segoe UI', sans-serif; 
+    color: var(--text-main); /* Değişken kullanıldı */
+}
 
 /* --- BACKGROUND --- */
 .bg {
   position: fixed; inset: 0; z-index: -1;
   width: 100%; height: 100%; object-fit: cover;
-  background: linear-gradient(135deg, #1e293b, #0f172a);
+  background-color: var(--bg-color); /* Değişken kullanıldı */
   background-size: cover; background-position: center;
   transition: filter 0.8s ease;
 }
 .bg.blurred { filter: blur(15px) brightness(0.8); transform: scale(1.02); }
 
-/* --- UTILS --- */
 .hidden { display: none !important; }
 
-/* --- LOCK SCREEN & MODALS --- */
+/* --- KİLİT EKRANI VE MODALLAR --- */
 .lock-container, .modal-overlay {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10;
   transition: opacity 0.5s ease;
 }
-.modal-overlay { background: rgba(0,0,0,0.7); z-index: 20; }
+.modal-overlay { background: rgba(0,0,0,0.5); z-index: 20; }
 
 .lock-card, .modal-card {
-  background: rgba(30, 41, 59, 0.95); /* Biraz daha koyu yaptım okunsun diye */
-  backdrop-filter: blur(10px);
+  background: var(--win-bg); /* Değişken */
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   padding: 40px; border-radius: 16px; width: 300px; text-align: center;
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 10px 40px rgba(0,0,0,0.5); color: white;
+  border: 1px solid var(--win-border); /* Değişken */
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3); 
+  color: var(--text-main);
 }
 
-/* --- INPUTS & BUTTONS --- */
+/* --- INPUTLAR VE BUTONLAR --- */
 input {
   display: block; width: 100%; padding: 12px; margin: 10px 0;
-  border-radius: 6px; border: 1px solid var(--glass-border);
-  background: rgba(255,255,255,0.1); color: white; outline: none; box-sizing: border-box;
+  border-radius: 6px; 
+  border: 1px solid var(--input-border); /* Değişken */
+  background: var(--input-bg); /* Değişken */
+  color: var(--text-main); 
+  outline: none; box-sizing: border-box;
 }
 
-/* ŞİFRE GÖZ İKONU DÜZELTMESİ (Edge/Chrome için) */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear {
-    filter: invert(1); /* Siyah ikonu beyaza çevirir */
-    cursor: pointer;
+    filter: invert(1); cursor: pointer;
 }
 
-/* CANCEL / CREATE BUTONLARI DÜZELTMESİ */
 .modal-buttons {
-    display: flex;       /* Yan yana dizilmesini sağlar */
-    gap: 10px;           /* Aralarında boşluk bırakır */
-    justify-content: center; /* Ortalar */
-    margin-top: 15px;
-    width: 100%;
+    display: flex; gap: 10px; justify-content: center; margin-top: 15px; width: 100%;
 }
 
 button.btn-primary, #loginBtn {
-  flex: 1; /* Butonların eşit genişlikte olmasını sağlar */
-  padding: 12px; background: var(--primary);
+  flex: 1; padding: 12px; background: var(--primary);
   color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;
 }
-button.btn-primary:hover { background: #2563eb; }
+button.btn-primary:hover { filter: brightness(1.1); }
 
 .btn-cancel { 
-    flex: 1; 
-    background: transparent; color: #cbd5e1; 
-    border: 1px solid #475569; padding: 12px; 
+    flex: 1; background: transparent; color: var(--text-muted);
+    border: 1px solid var(--text-muted); padding: 12px; 
     border-radius: 6px; cursor: pointer; 
 }
-.btn-cancel:hover { background: rgba(255,255,255,0.05); color: white; }
+.btn-cancel:hover { background: var(--item-hover); color: var(--text-main); }
 
 .lock-links { margin-top: 15px; display: flex; justify-content: space-between; font-size: 0.85rem; }
-.lock-links a { color: #cbd5e1; text-decoration: none; }
+.lock-links a { color: var(--text-muted); text-decoration: none; }
 
-/* --- DESKTOP --- */
+/* --- MASAÜSTÜ --- */
 .desktop { position: absolute; inset: 0; display: flex; flex-direction: column; z-index: 1; }
+
 .topbar {
-  height: 40px; background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
+  height: 40px; 
+  background: var(--bar-bg); /* Değişken */
+  backdrop-filter: blur(10px);
   display: flex; align-items: center; justify-content: space-between; padding: 0 15px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid var(--win-border);
+  color: var(--text-main);
 }
+
 .icons-grid { padding: 20px; display: flex; gap: 20px; flex-wrap: wrap; }
+
 .app-icon {
   width: 80px; text-align: center; cursor: pointer;
-  padding: 10px; border-radius: 8px; transition: background 0.2s;
+  padding: 10px; border-radius: 8px; transition: 0.2s;
+  color: white; /* İkon yazısı her zaman beyaz kalsın */
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
 }
-.app-icon:hover { background: rgba(255,255,255,0.1); }
+.app-icon:hover { background: rgba(255,255,255,0.15); }
 .app-icon .icon-img { 
     font-size: 40px; margin-bottom: 5px; 
     display:flex; justify-content:center; align-items:center; height:50px;
 }
 
-/* --- WINDOW MANAGER UPDATE --- */
+/* --- PENCERE YÖNETİMİ (Tek ve Temiz Hali) --- */
 .window {
-    /* --- EKLENEN KRİTİK SATIR: --- */
-    position: absolute; /* Bu olmazsa pencere hareket etmez! */
-    /* ----------------------------- */
-
+    position: absolute; /* Hareket için şart */
     min-width: 300px; min-height: 200px;
     display: flex; flex-direction: column;
     resize: both;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.5);
+    box-shadow: 0 15px 50px rgba(0,0,0,0.3);
     
-    /* Global Glass Effect (Buzlu Cam) */
-    background: rgba(15, 23, 42, 0.65) !important; 
+    /* Tema Renkleri */
+    background: var(--win-bg) !important;
+    color: var(--text-main);
+    border: 1px solid var(--win-border);
+    
+    /* Buzlu Cam */
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    
-    /* Sürükleme performansı için transition ayarı (top/left YOK) */
-    transition: width 0.1s, height 0.1s, opacity 0.2s, transform 0.2s;
-}
-
-@keyframes popIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; }}
-
-.win-header {
-  background: rgba(255,255,255,0.05); padding: 8px 12px;
-  display: flex; justify-content: space-between; align-items: center;
-  cursor: grab; border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-.win-content { flex: 1; overflow: auto; display: flex; position: relative; }
-.win-close { background: #ef4444; color: white; border: none; width: 24px; height: 24px; border-radius: 50%; cursor: pointer; }
-
-/* --- TASKBAR --- */
-.taskbar {
-    position: absolute; bottom: 0; left: 0; width: 100%; height: 40px;
-    background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    display: flex; align-items: center; padding: 0 10px; gap: 5px; z-index: 1000;
-}
-
-.taskbar-item {
-    padding: 5px 15px; background: rgba(255,255,255,0.05);
-    color: #cbd5e1; border-radius: 4px; cursor: pointer;
-    border: 1px solid transparent; user-select: none;
-    transition: all 0.2s; font-size: 0.9rem;
-    display: flex; align-items: center; gap: 8px;
-}
-.taskbar-item:hover { background: rgba(255,255,255,0.15); }
-.taskbar-item.active { 
-    background: rgba(59, 130, 246, 0.2); 
-    border-color: rgba(59, 130, 246, 0.5); color: white;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-/* --- WINDOW MANAGER UPDATE --- */
-/* --- WINDOW MANAGER UPDATE --- */
-.window {
-    min-width: 300px; min-height: 200px;
-    display: flex; flex-direction: column;
-    resize: both;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-    
-    /* width ve height transition'larını kaldırdık */
-    transition: opacity 0.2s, transform 0.2s; 
-    
-    /* Diğer ayarların aynen kalıyor */
-    position: absolute; 
-    background: rgba(15, 23, 42, 0.65) !important; 
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* Animasyon (width/height kaldırdık ki kasmasın) */
+    transition: opacity 0.2s, transform 0.2s;
 }
 
 /* Tam Ekran Modu */
 .window.maximized {
     top: 40px !important; left: 0 !important;
-    width: 100% !important; height: calc(100% - 80px) !important; /* Topbar ve Taskbar payı */
-    border-radius: 0; resize: none;
-    transform: none !important;
+    width: 100% !important; height: calc(100% - 85px) !important;
+    border-radius: 0; resize: none; transform: none !important;
 }
 
-/* Minimize Modu (Görünmez ama var) */
+/* Minimize Modu */
 .window.minimized {
-    opacity: 0; transform: scale(0.8) translateY(200px);
-    pointer-events: none;
+    opacity: 0; transform: scale(0.8) translateY(200px); pointer-events: none;
 }
 
-/* Pencere Kontrolleri (Header) */
+/* Pencere Başlığı */
 .win-header {
-    padding: 0 10px; height: 32px; background: rgba(255,255,255,0.03);
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    display: flex; justify-content: space-between; align-items: center;
-    user-select: none;
+  padding: 0 10px; height: 32px; 
+  background: var(--item-hover);
+  border-bottom: 1px solid var(--win-border);
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: grab; user-select: none;
 }
-.win-title { font-size: 0.9rem; opacity: 0.8; }
+.win-title { font-size: 0.9rem; opacity: 0.9; }
+
 .win-controls { display: flex; gap: 8px; }
-
-.win-btn {
-    width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer;
-    position: relative; display: flex; justify-content: center; align-items: center;
-}
-.btn-min { background: #f59e0b; } /* Sarı */
-.btn-max { background: #10b981; } /* Yeşil */
-.btn-close { background: #ef4444; } /* Kırmızı */
-
+.win-btn { width: 12px; height: 12px; border-radius: 50%; border: none; cursor: pointer; }
+.btn-min { background: #f59e0b; }
+.btn-max { background: #10b981; }
+.btn-close { background: #ef4444; }
 .win-btn:hover { filter: brightness(1.2); }
 
-/* --- RESIZE HANDLES (Kenarlardan tutup çekme) --- */
+/* Kenarlıklar */
 .resizer { position: absolute; z-index: 100; }
 .resizer-r { right: -5px; top: 0; bottom: 0; width: 10px; cursor: e-resize; }
 .resizer-b { bottom: -5px; left: 0; right: 0; height: 10px; cursor: s-resize; }
 .resizer-br { right: -5px; bottom: -5px; width: 15px; height: 15px; cursor: se-resize; }
 
-/* --- WINDOW MANAGER UPDATE --- */
-.window {
-    min-width: 300px; min-height: 200px;
-    display: flex; flex-direction: column;
-    resize: both;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.5);
-    
-    /* --- GLOBAL GLASS EFFECT (BUZLU CAM) --- */
-    /* Arka plan rengini yarı saydam yapıyoruz */
-    background: rgba(15, 23, 42, 0.65) !important; 
-    
-    /* Arkadaki görüntüyü bulanıklaştırıyoruz */
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    
-    /* İnce beyaz kenarlık ekliyoruz (daha şık durur) */
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    
-    /* Animasyonlar */
-    transition: width 0.1s, height 0.1s, opacity 0.2s, transform 0.2s;
+/* --- GÖREV ÇUBUĞU --- */
+.taskbar {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 45px;
+    background: var(--bar-bg); /* Değişken */
+    backdrop-filter: blur(15px);
+    border-top: 1px solid var(--win-border);
+    display: flex; align-items: center; padding: 0 10px; gap: 5px; z-index: 1000;
+}
+
+.taskbar-item {
+    padding: 5px 15px; 
+    background: var(--item-hover); /* Değişken */
+    color: var(--text-main); 
+    border-radius: 4px; cursor: pointer;
+    border: 1px solid transparent; user-select: none;
+    transition: all 0.2s; font-size: 0.9rem;
+    display: flex; align-items: center; gap: 8px;
+}
+.taskbar-item:hover { filter: brightness(1.2); }
+.taskbar-item.active { 
+    background: rgba(59, 130, 246, 0.2); 
+    border-bottom: 3px solid var(--primary);
 }

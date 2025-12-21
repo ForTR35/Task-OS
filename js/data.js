@@ -82,6 +82,14 @@ window.OS.Data = {
             return false;
         }
     },
+    // ... (mevcut kodlar) ...
+
+    // --- TEMA AYARLARI ---
+    getTheme: () => localStorage.getItem('webos_theme') || 'dark', // Varsayılan 'dark'
+    
+    setTheme: (mode) => localStorage.setItem('webos_theme', mode),
+
+    // ... (alt kısımdaki diğer fonksiyonlar) ...
 
     removeTheme: (index) => {
         const themes = JSON.parse(localStorage.getItem('webos_themes')) || [];
