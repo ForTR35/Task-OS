@@ -308,13 +308,36 @@ document.addEventListener('DOMContentLoaded', () => {
         if(c) c.innerText = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
     }, 1000);
     
-    // Create/Forgot Modal triggers
+// --- MODALS (HATA DÜZELTİLDİ) ---
     const btnCreate = document.getElementById('openCreate');
     const btnForgot = document.getElementById('openForgot');
-    if(btnCreate) btnCreate.addEventListener('click', () => modalOverlay.classList.remove('hidden')); 
-    if(btnForgot) btnForgot.addEventListener('click', () => modalOverlay.classList.remove('hidden'));
+    const createModal = document.getElementById('createModal');
+    const forgotModal = document.getElementById('forgotModal');
+
+    // Create Account Tuşuna Basılınca
+    if(btnCreate) {
+        btnCreate.addEventListener('click', () => {
+            modalOverlay.classList.remove('hidden'); // Perdeyi aç
+            createModal.classList.remove('hidden');  // Create kutusunu göster
+            forgotModal.classList.add('hidden');     // Diğerini gizle (garanti olsun)
+        }); 
+    }
+
+    // Forgot Password Tuşuna Basılınca
+    if(btnForgot) {
+        btnForgot.addEventListener('click', () => {
+            modalOverlay.classList.remove('hidden'); // Perdeyi aç
+            forgotModal.classList.remove('hidden');  // Forgot kutusunu göster
+            createModal.classList.add('hidden');     // Diğerini gizle
+        });
+    }
     
-    document.querySelectorAll('.btn-cancel').forEach(b => b.onclick = () => modalOverlay.classList.add('hidden'));
+    // Cancel Tuşuna Basılınca Hepsini Kapat
+    document.querySelectorAll('.btn-cancel').forEach(b => b.onclick = () => {
+        modalOverlay.classList.add('hidden');
+        createModal.classList.add('hidden');
+        forgotModal.classList.add('hidden');
+    });
 
 // --- MASAÜSTÜ İKON YÖNETİMİ VE SÜRÜKLEME ---
     window.OS.refreshIcons = () => {
