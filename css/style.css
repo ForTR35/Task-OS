@@ -53,6 +53,14 @@ body, html {
 
 .hidden { display: none !important; }
 
+/* YouTube Arka Plan Ayarı */
+iframe.bg {
+    pointer-events: none; /* Video tıklanamaz olsun, sadece izlensin */
+    border: none;
+    width: 100vw;
+    height: 100vh;
+}
+
 /* --- KİLİT EKRANI VE MODALLAR --- */
 .lock-container, .modal-overlay {
   position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10;
@@ -209,3 +217,89 @@ button.btn-primary:hover { filter: brightness(1.1); }
     background: rgba(59, 130, 246, 0.2); 
     border-bottom: 3px solid var(--primary);
 }
+
+/* --- TASKBAR TRAY & VOLUME --- */
+.taskbar {
+    display: flex; 
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 15px; /* Genel sağ boşluk */
+}
+
+/* Sol taraftaki pencerelerin alanı */
+#taskbarApps {
+    flex: 1; /* Boş alanı kapla */
+    display: flex;
+    gap: 5px;
+    overflow: hidden; /* Taşarsa gizle */
+    margin-right: 20px; /* Tray ile arasına mesafe koy */
+}
+
+/* Sağ Taraf (Tray) */
+.taskbar-tray {
+    flex-shrink: 0; /* Asla küçülme/ezilme */
+    display: flex; 
+    align-items: center; 
+    gap: 15px; 
+    
+    /* İkonu sola çekmek için burayı artırıyoruz */
+    margin-right: 60px; 
+}
+
+.volume-container {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 100%; cursor: pointer;
+}
+
+.volume-icon {
+    font-size: 1.4rem; /* İkonu biraz büyüttük */
+    color: var(--text-main); transition: 0.2s;
+}
+.volume-container:hover .volume-icon { transform: scale(1.1); }
+
+/* Ses Çubuğu Kutusu */
+.volume-slider-wrapper {
+    position: absolute; 
+    left: 50%; 
+    transform: translateX(-50%);
+    width: 36px; height: 140px; /* Biraz daha uzun yaptık */
+    
+    background: var(--bar-bg); backdrop-filter: blur(15px);
+    border: 1px solid var(--win-border); border-radius: 8px;
+    
+    display: flex; justify-content: center; align-items: center;
+    box-shadow: 0 5px 25px rgba(0,0,0,0.4);
+    z-index: 9999; /* En üstte görünsün */
+
+    /* Gizleme Ayarları */
+    bottom: 70px;
+    opacity: 0; 
+    visibility: hidden;
+    
+    /* Gecikme Ayarı (Mouse kaçmasın diye) */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition-delay: 0.5s; 
+}
+
+.volume-container:hover .volume-slider-wrapper {
+    opacity: 1; 
+    visibility: visible;
+    bottom: 50px; /* İkona yaklaş */
+    transition-delay: 0s;
+}
+
+/* Görünmez Köprü (Mouse aradaki boşluğa düşünce kapanmasın) */
+.volume-slider-wrapper::after {
+    content: '';
+    position: absolute; bottom: -30px; left: 0;
+    width: 100%; height: 35px; background: transparent;
+}
+
+#globalVolume {
+    writing-mode: bt-lr; -webkit-appearance: slider-vertical;
+    width: 8px; height: 110px; cursor: pointer;
+    background: rgba(255,255,255,0.2); border-radius: 5px;
+    accent-color: var(--primary); /* Slider rengi temaya uysun */
+}
+
+.bg.unblurred { filter: blur(0) !important; }

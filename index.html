@@ -12,6 +12,8 @@
 
   <div id="bg" class="bg blurred"></div>
   <video id="bgVideo" class="bg blurred hidden" autoplay loop muted playsinline></video>
+  
+  <iframe id="bgYoutube" class="bg blurred hidden" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
 
   <div id="lockScreen" class="lock-container">
     <div class="lock-card">
@@ -38,7 +40,18 @@
 
     <div id="windowArea"></div>
 
-    <div id="taskbar" class="taskbar"></div>
+    <div id="taskbar" class="taskbar">
+        <div id="taskbarApps" style="display:flex; gap:5px;"></div>
+
+        <div class="taskbar-tray">
+            <div class="volume-container">
+                <div class="volume-slider-wrapper">
+                    <input type="range" id="globalVolume" min="0" max="100" value="100" orient="vertical">
+                </div>
+                <div class="volume-icon">🔊</div>
+            </div>
+            </div>
+    </div>
   </div>
 
   <div id="modalOverlay" class="modal-overlay hidden">
