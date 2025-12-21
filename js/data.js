@@ -50,6 +50,13 @@ window.OS.Data = {
         let notes = JSON.parse(localStorage.getItem('webos_notes')) || [];
         notes = notes.filter(n => n.id !== id);
         localStorage.setItem('webos_notes', JSON.stringify(notes));
+    },
+
+    // --- TODO APP DATA ---
+    getTodos: () => JSON.parse(localStorage.getItem('webos_todos')) || [],
+    
+    saveTodos: (todos) => {
+        localStorage.setItem('webos_todos', JSON.stringify(todos));
     }
 };
 
