@@ -397,3 +397,25 @@ button.btn-primary:hover { filter: brightness(1.1); }
 #globalVolume::-moz-range-thumb {
     height: 18px; width: 18px; border: 2px solid white; border-radius: 50%; background: #3b82f6;
 }
+
+/* --- LOGOUT BUTTON (ÇIKIŞ TUŞU) --- */
+.logout-btn {
+    font-size: 1.3rem;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s;
+    
+    /* İkonu ortalamak ve hizalamak için */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    /* Ses ikonuna yapışmasın diye azıcık boşluk */
+    margin-left: 5px;
+}
+
+.logout-btn:hover {
+    transform: scale(1.1);
+    color: #ef4444; /* Kırmızı renk (Danger) */
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); /* Kırmızı parlama */
+}

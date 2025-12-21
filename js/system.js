@@ -538,4 +538,34 @@ window.OS.applyBackground = (data) => {
             }
         });
     }
+    // --- OTURUMU KAPATMA (LOGOUT) ---
+    const logoutBtn = document.getElementById('logoutBtn');
+    if(logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            if(confirm("Oturumu kapatmak istediğinize emin misiniz?")) {
+                
+                // 1. Masaüstünü Gizle
+                document.getElementById('desktop').classList.add('hidden');
+                
+                // 2. Kilit Ekranını Geri Getir
+                const lockScreen = document.getElementById('lockScreen');
+                lockScreen.style.opacity = '1';
+                lockScreen.style.pointerEvents = 'auto'; // Tıklanabilir yap
+                
+                // 3. Şifre Alanını Temizle
+                document.getElementById('password').value = '';
+
+                // 4. Arka Planı Tekrar Blur Yap
+                document.getElementById('bg').classList.add('blurred');
+                if(document.getElementById('bgVideo')) document.getElementById('bgVideo').classList.add('blurred');
+                
+                const bgYoutube = document.getElementById('bgYoutube');
+                if(bgYoutube) bgYoutube.classList.add('blurred');
+
+                // 5. Açık Pencereleri Kapat (İsteğe bağlı, temiz sayfa için)
+                // document.getElementById('windowArea').innerHTML = '';
+                // document.querySelectorAll('.taskbar-item').forEach(el => el.remove());
+            }
+        });
+    }
 }); // <-- Dosyanın en sonundaki kapanış parantezi burası olmalı
