@@ -299,26 +299,137 @@ document.addEventListener('DOMContentLoaded', () => {
     
     document.querySelectorAll('.btn-cancel').forEach(b => b.onclick = () => modalOverlay.classList.add('hidden'));
 
-    // --- MASAÜSTÜ İKON YENİLEME ---
+// --- MASAÜSTÜ İKON YÖNETİMİ VE SÜRÜKLEME ---
     window.OS.refreshIcons = () => {
         const iconsDiv = document.getElementById('icons');
-        // Sadece sonradan eklenen notları temizle
-        iconsDiv.querySelectorAll('.dynamic-note').forEach(el => el.remove());
+        iconsDiv.innerHTML = ''; // Her şeyi temizle (Statik + Dinamik)
 
-        // Kayıtlı notları getir ve ekle
-        const savedNotes = window.OS.Data.getNotes();
+        const DB = window.OS.Data;
+
+        // 1. Tüm Uygulamaları Tanımla (Statik Olanlar Buraya)
+        let allApps = [
+            { id: 'app-notes', type: 'app', appName: 'notes', title: 'Notes', icon: '📝' },
+            { id: 'app-browser', type: 'app', appName: 'browser', title: 'Browser', icon: '🌐' },
+            { id: 'app-settings', type: 'app', appName: 'settings', title: 'Settings', icon: '⚙️' },
+            { id: 'app-terminal', type: 'app', appName: 'terminal', title: 'Terminal', icon: '💻' },
+            { id: 'app-calculator', type: 'app', appName: 'calculator', title: 'Calculator', icon: '🧮' },
+            { id: 'app-camera', type: 'app', appName: 'camera', title: 'Camera', icon: '📷' },
+            { id: 'app-video', type: 'app', appName: 'video', title: 'Player', icon: '🎬' }
+        ];
+
+        // 2. Kullanıcı Notlarını Listeye Ekle
+        const savedNotes = DB.getNotes();
         savedNotes.forEach(note => {
-            const icon = document.createElement('div');
-            icon.className = 'app-icon dynamic-note';
-            icon.dataset.app = 'notes';
-            icon.innerHTML = `<div class="icon-img">📄</div><span>${note.title}</span>`;
-            
-            icon.addEventListener('dblclick', () => {
-                window.openWindow('notes', note.id);
+            allApps.push({
+                id: note.id, // Notun kendi ID'si (örn: note-17482...)
+                type: 'note',
+                appName: 'notes', // Açılacak uygulama
+                title: note.title,
+                icon: '📄',
+                params: note.id // Parametre olarak ID gönderilecek
             });
+        });
+
+        // 3. Kayıtlı Sıralamayı Kontrol Et ve Sırala
+        const savedOrder = DB.getIconOrder();
+        if (savedOrder && savedOrder.length > 0) {
+            allApps.sort((a, b) => {
+                let indexA = savedOrder.indexOf(a.id);
+                let indexB = savedOrder.indexOf(b.id);
+                
+                // Eğer listede yoksa (yeni eklenmişse) en sona at
+                if (indexA === -1) indexA = 9999;
+                if (indexB === -1) indexB = 9999;
+                
+                return indexA - indexB;
+            });
+        }
+
+        // 4. İkonları Ekrana Bas
+        allApps.forEach(app => {
+            const icon = document.createElement('div');
+            icon.className = 'app-icon';
+            icon.draggable = true; // Sürüklenebilir yap
+            icon.id = app.id; // Sıralama için ID şart
+            icon.dataset.app = app.appName; // Çift tıklama için
+            
+            // Eğer not ise özel sınıf ekle (görünüm için istersen)
+            if(app.type === 'note') icon.classList.add('dynamic-note');
+
+            icon.innerHTML = `
+                <div class="icon-img">${app.icon}</div>
+                <span>${app.title}</span>
+            `;
+
+            // Çift Tıklama
+            icon.addEventListener('dblclick', () => {
+                window.openWindow(app.appName, app.params || null);
+            });
+
+            // Sürükle Bırak Olaylarını Bağla
+            setupDragDrop(icon);
+
             iconsDiv.appendChild(icon);
         });
     };
+
+    // --- SÜRÜKLE BIRAK MANTIĞI ---
+    let draggedItem = null;
+
+    function setupDragDrop(item) {
+        item.addEventListener('dragstart', function(e) {
+            draggedItem = item;
+            setTimeout(() => item.style.opacity = '0.5', 0); // Sürüklerken şeffaflaştır
+        });
+
+        item.addEventListener('dragend', function() {
+            setTimeout(() => {
+                item.style.opacity = '1';
+                draggedItem = null;
+                saveCurrentOrder(); // Bıraktıktan sonra sırayı kaydet
+            }, 0);
+        });
+
+        item.addEventListener('dragover', function(e) {
+            e.preventDefault(); // Bırakmaya izin ver
+        });
+
+        item.addEventListener('dragenter', function(e) {
+            e.preventDefault();
+            this.style.transform = 'scale(1.1)'; // Üzerine gelince büyüsün
+            this.style.transition = '0.2s';
+        });
+
+        item.addEventListener('dragleave', function() {
+            this.style.transform = 'scale(1)'; // Çıkınca normale dönsün
+        });
+
+        item.addEventListener('drop', function() {
+            this.style.transform = 'scale(1)';
+            if (this !== draggedItem) {
+                // DOM içinde yer değiştir
+                let allIcons = Array.from(document.querySelectorAll('.app-icon'));
+                let draggedIdx = allIcons.indexOf(draggedItem);
+                let droppedIdx = allIcons.indexOf(this);
+
+                const container = document.getElementById('icons');
+                
+                if (draggedIdx < droppedIdx) {
+                    container.insertBefore(draggedItem, this.nextSibling);
+                } else {
+                    container.insertBefore(draggedItem, this);
+                }
+            }
+        });
+    }
+
+    // Sıralamayı Veritabanına Kaydet
+    function saveCurrentOrder() {
+        const icons = document.querySelectorAll('.app-icon');
+        const orderList = Array.from(icons).map(icon => icon.id);
+        window.OS.Data.saveIconOrder(orderList);
+    }
+
     // Başlangıçta çalıştır
     window.OS.refreshIcons();
 });

@@ -126,8 +126,15 @@ window.OS.Data = {
         let notes = JSON.parse(localStorage.getItem('webos_notes')) || [];
         notes = notes.filter(n => n.id !== id);
         localStorage.setItem('webos_notes', JSON.stringify(notes));
-    }
+    },
     // --- BURADA BİTİR ---
-};
+
+    // --- İKON SIRALAMASI ---
+    getIconOrder: () => JSON.parse(localStorage.getItem('webos_icon_order')) || null,
+    
+    saveIconOrder: (orderList) => {
+        localStorage.setItem('webos_icon_order', JSON.stringify(orderList));
+    }
+}; // <-- Bu parantez Data objesinin kapanışıdır, bunun içine eklediğinden emin ol.
 
 window.OS.Apps = {};
